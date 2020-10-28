@@ -1,6 +1,6 @@
 const net = require("net");
 
-const PORT = 8801;
+const PORT = 8805;
 
 async function sleep(ms) {
   return new Promise((resolve, reject) => {
@@ -22,6 +22,7 @@ async function main() {
 
   net
     .createServer(async (socket) => {
+      await sleep();
       socket.on("error", console.error);
       socket.end(resp);
     })
