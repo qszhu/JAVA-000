@@ -1,0 +1,9 @@
+正在执行...
+2020-10-28T23:11:26.313+0800: [GC pause (G1 Evacuation Pause) (young) 63M->22M(1024M), 0.1795966 secs]
+2020-10-28T23:11:26.516+0800: [GC pause (G1 Evacuation Pause) (young) 82M->44M(1024M), 0.0227797 secs]
+2020-10-28T23:11:26.590+0800: [GC pause (G1 Evacuation Pause) (young) 100M->61M(1024M), 0.2281807 secs]
+2020-10-28T23:11:26.832+0800: [GC pause (G1 Evacuation Pause) (young) 114M->76M(1024M), 0.0237712 secs]
+2020-10-28T23:11:26.869+0800: [GC pause (G1 Evacuation Pause) (young) 128M->90M(1024M), 0.0514128 secs]
+2020-10-28T23:11:27.007+0800: [GC pause (G1 Evacuation Pause) (young) 186M->121M(1024M), 0.0352028 secs]
+2020-10-28T23:11:27.087+0800: [GC pause (G1 Evacuation Pause) (young) 243M->158M(1024M), 0.0637237 secs]
+执行结束!共生成对象次数:2149

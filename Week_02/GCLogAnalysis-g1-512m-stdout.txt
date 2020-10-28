@@ -1,0 +1,16 @@
+正在执行...
+2020-10-28T23:11:26.441+0800: [GC pause (G1 Evacuation Pause) (young) 28M->9087K(512M), 0.0196111 secs]
+2020-10-28T23:11:26.566+0800: [GC pause (G1 Evacuation Pause) (young) 42M->23M(512M), 0.0315215 secs]
+2020-10-28T23:11:26.645+0800: [GC pause (G1 Evacuation Pause) (young) 73M->40M(512M), 0.0560891 secs]
+2020-10-28T23:11:26.794+0800: [GC pause (G1 Evacuation Pause) (young) 116M->67M(512M), 0.0564061 secs]
+2020-10-28T23:11:26.962+0800: [GC pause (G1 Evacuation Pause) (young) 198M->109M(512M), 0.1082809 secs]
+2020-10-28T23:11:27.096+0800: [GC pause (G1 Evacuation Pause) (young) 198M->141M(512M), 0.0472064 secs]
+2020-10-28T23:11:27.197+0800: [GC pause (G1 Evacuation Pause) (young) 297M->189M(512M), 0.0267847 secs]
+2020-10-28T23:11:27.246+0800: [GC pause (G1 Humongous Allocation) (young) (initial-mark) 296M->223M(512M), 0.0329564 secs]
+2020-10-28T23:11:27.293+0800: [GC concurrent-root-region-scan-start]
+2020-10-28T23:11:27.293+0800: [GC concurrent-root-region-scan-end, 0.0001280 secs]
+2020-10-28T23:11:27.293+0800: [GC concurrent-mark-start]
+2020-10-28T23:11:27.302+0800: [GC concurrent-mark-end, 0.0083229 secs]
+2020-10-28T23:11:27.307+0800: [GC remark, 0.0121153 secs]
+2020-10-28T23:11:27.320+0800: [GC cleanup 297M->297M(512M), 0.0065281 secs]
+执行结束!共生成对象次数:2751
