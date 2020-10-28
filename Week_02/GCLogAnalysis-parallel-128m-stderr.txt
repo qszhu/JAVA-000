@@ -1,0 +1,3 @@
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at GCLogAnalysis.generateGarbage(GCLogAnalysis.java:48)
+	at GCLogAnalysis.main(GCLogAnalysis.java:25)

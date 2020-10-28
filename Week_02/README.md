@@ -17,6 +17,8 @@ $ node runner.js GCLogAnalysis
 ```bash
 $ uname -a
 Linux VM-16-2-ubuntu 5.4.0-52-generic #57-Ubuntu SMP Thu Oct 15 10:57:00 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+```
+```bash
 $ lscpu
 Architecture:                    x86_64
 CPU op-mode(s):                  32-bit, 64-bit
@@ -54,10 +56,14 @@ Vulnerability Tsx async abort:   Not affected
 Flags:                           fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm rep_good nopl cpuid ext
                                  d_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misal
                                  ignsse 3dnowprefetch osvw topoext ibpb vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt sha_ni xsaveopt xsavec xgetbv1 arat
+```
+```bash
 $ free -h
               total        used        free      shared  buff/cache   available
 Mem:           15Gi       291Mi        13Gi       2.0Mi       1.3Gi        14Gi
 Swap:            0B          0B          0B
+```
+```bash
 $ java -version
 java version "1.8.0_271"
 Java(TM) SE Runtime Environment (build 1.8.0_271-b09)
@@ -68,10 +74,10 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.271-b09, mixed mode)
 
 GC/Heap | 128M | 512M | 1G | 2G | 4G
 --- | --- | --- | --- | --- | ---
-serial | [OOM](GCLogAnalysis-serial-128m-stderr.txt) | [1959](GCLogAnalysis-serial-512m-stdout.txt) | 2866 | 2103 | 2381
-parallel | 1085 | 2471 | 2003 | 2259 | 2458
-cms | 1729 | 2678 | 3126 | 2896 | 1419
-g1 | 1076 | 2751 | 2149 | 4218 | 7180
+serial | [OOM](GCLogAnalysis-serial-128m-stderr.txt) | 12335 | 17020 | 17204 | 16889
+parallel | OOM | 10419 | 17983 | 20044 | 20455
+cms | OOM | 12448 | 17546 | 17806 | 17071
+g1 | OOM | 10848 | 18148 | 16108 | 20219
 
 ### 压力测试下的GC
 
@@ -307,6 +313,12 @@ Transfer/sec:    221.88KB
 ### HttpClient
 
 * [MyHttpClient.java](MyHttpClient.java)
+```bash
+$ java --version
+java 11.0.1 2018-10-16 LTS
+Java(TM) SE Runtime Environment 18.9 (build 11.0.1+13-LTS)
+Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.1+13-LTS, mixed mode)
+```
 ```bash
 $ java MyHttpClient.java http://localhost:8081
 ```

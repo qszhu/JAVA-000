@@ -1,15 +1,9 @@
 const fs = require('fs')
 const child_process = require('child_process')
 
-function run(cmd, args, outStream, errStream) {
+function run(cmd, args) {
   console.debug(cmd, args.join(' '))
-  const cp = child_process.spawn(cmd, args)
-  cp.stdout.pipe(outStream)
-  cp.stderr.pipe(errStream)
-  cp.on('exit', () => {
-    outStream.end()
-    errStream.end()
-  })
+  return child_process.spawnSync(cmd, args)
 }
 
 const gcArgs = {
@@ -33,9 +27,10 @@ function main(className) {
     for (const [memName, memArg] of Object.entries(memArgs)) {
       const args = [...gcArg, ...memArg, ...baseArgs]
       const baseName = `${className}-${gcName}-${memName}`
-      const outStream = fs.createWriteStream(`${baseName}-stdout.txt`)
-      const errStream = fs.createWriteStream(`${baseName}-stderr.txt`)
-      run('java', args, outStream, errStream)
+
+      const { stdout, stderr } = run('java', args)
+      fs.writeFileSync(`${baseName}-stdout.txt`, stdout)
+      fs.writeFileSync(`${baseName}-stderr.txt`, stderr)
     } 
   }
 }
