@@ -1,0 +1,8 @@
+Running 10s test @ http://localhost:8088/api/hello
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   710.58us    1.55ms  32.99ms   91.83%
+    Req/Sec    17.16k     3.83k   24.13k    71.00%
+  341732 requests in 10.01s, 40.80MB read
+Requests/sec:  34135.21
+Transfer/sec:      4.08MB
