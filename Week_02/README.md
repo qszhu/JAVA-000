@@ -13,71 +13,14 @@ $ javac GCLogAnalysis.java
 $ node runner.js GCLogAnalysis
 ```
 
-* 测试环境(云服务器)
-```bash
-$ uname -a
-Linux VM-16-2-ubuntu 5.4.0-52-generic #57-Ubuntu SMP Thu Oct 15 10:57:00 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
-```
-```bash
-$ lscpu
-Architecture:                    x86_64
-CPU op-mode(s):                  32-bit, 64-bit
-Byte Order:                      Little Endian
-Address sizes:                   48 bits physical, 48 bits virtual
-CPU(s):                          8
-On-line CPU(s) list:             0-7
-Thread(s) per core:              1
-Core(s) per socket:              8
-Socket(s):                       1
-NUMA node(s):                    1
-Vendor ID:                       AuthenticAMD
-CPU family:                      23
-Model:                           49
-Model name:                      AMD EPYC 7K62 48-Core Processor
-Stepping:                        0
-CPU MHz:                         2595.124
-BogoMIPS:                        5190.24
-Hypervisor vendor:               KVM
-Virtualization type:             full
-L1d cache:                       256 KiB
-L1i cache:                       256 KiB
-L2 cache:                        32 MiB
-L3 cache:                        32 MiB
-NUMA node0 CPU(s):               0-7
-Vulnerability Itlb multihit:     Not affected
-Vulnerability L1tf:              Not affected
-Vulnerability Mds:               Not affected
-Vulnerability Meltdown:          Not affected
-Vulnerability Spec store bypass: Vulnerable
-Vulnerability Spectre v1:        Mitigation; usercopy/swapgs barriers and __user pointer sanitization
-Vulnerability Spectre v2:        Mitigation; Full AMD retpoline, IBPB conditional, STIBP disabled, RSB filling
-Vulnerability Srbds:             Not affected
-Vulnerability Tsx async abort:   Not affected
-Flags:                           fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm rep_good nopl cpuid ext
-                                 d_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misal
-                                 ignsse 3dnowprefetch osvw topoext ibpb vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt sha_ni xsaveopt xsavec xgetbv1 arat
-```
-```bash
-$ free -h
-              total        used        free      shared  buff/cache   available
-Mem:           15Gi       291Mi        13Gi       2.0Mi       1.3Gi        14Gi
-Swap:            0B          0B          0B
-```
-```bash
-$ java -version
-java version "1.8.0_271"
-Java(TM) SE Runtime Environment (build 1.8.0_271-b09)
-Java HotSpot(TM) 64-Bit Server VM (build 25.271-b09, mixed mode)
-```
-
 * 运行一次的结果(创建对象数量)
 
-GC/Heap | 128M | 512M | 1G | 2G | 4G
+GC/Heap size | 128m | 512m | 1g | 2g | 4g
 --- | --- | --- | --- | --- | ---
-serial | [OOM](GCLogAnalysis-serial-128m-stderr.txt) | 12335 | 17020 | 17204 | 16889
-parallel | OOM | 10419 | 17983 | 20044 | 20455
-cms | OOM | 12448 | 17546 | 17806 | 17071
-g1 | OOM | 10848 | 18148 | 16108 | 20219
+serial | Error | 12228 | 16554 | 16780 | 16717
+parallel | Error | 10589 | 18034 | 19981 | 20367
+cms | Error | 12922 | 16730 | 18689 | 17344
+g1 | Error | 11103 | 17777 | 17946 | 16103
 
 ### 压力测试下的GC(QPS)
 
@@ -86,12 +29,12 @@ g1 | OOM | 10848 | 18148 | 16108 | 20219
 $ node runner1.js
 ```
 
-GC/Heap | 128M | 512M | 1G | 2G | 4G
+GC/Heap size | 128m | 512m | 1g | 2g | 4g
 --- | --- | --- | --- | --- | ---
-serial | 34187.84 | 33892.20 | 33891.43 | 34124.76 | 33864.84
-parallel | 33909.36 | 33359.87 | 34024.16 | 34018.99 | 33637.95
-cms | 33336.38 | 34874.46 | 33498.49 | 33976.30 | 34530.16
-g1 | 34095.40 | 34135.21 | 34738.08 | 34072.83 | 34308.52
+serial | 47372.29 | 47505.73 | 47456.28 | 47270.33 | 47085.65
+parallel | 47095.36 | 47252.83 | 47184.17 | 47241.54 | 46903.86
+cms | 47397.72 | 46984.92 | 47245.44 | 47058.17 | 47135.39
+g1 | 46854.89 | 46784.27 | 46605.03 | 46714.91 | 46976.01
 
 ### 简单HttpServer压测 
 
@@ -150,7 +93,6 @@ hello,nio
 
 * 尝试先读完请求数据：
 ```diff
-    private static void service(Socket socket) {
         try {
             Thread.sleep(20);
 +
@@ -190,10 +132,6 @@ Transfer/sec:      1.55KB
 
 * 后课件代码更新，返回了`Content-Length`：
 ```diff
-    private static void service(Socket socket) {
-        try {
-            Thread.sleep(20);
-            PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
             printWriter.println("HTTP/1.1 200 OK");
             printWriter.println("Content-Type:text/html;charset=utf-8");
 +            String body = "hello,nio";
@@ -231,26 +169,12 @@ Transfer/sec:      3.85KB
 
 * 由于HTTP/1.1默认使用长连接，所以如果服务端要关闭连接的话需要通知客户端不使用长连接：
 ```diff
-    private static void service(Socket socket) {
-        try {
-            Thread.sleep(20);
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-                if (line.isEmpty()) break;
-            }
-
-            PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
-            printWriter.println("HTTP/1.1 200 OK");
-            printWriter.println("Content-Type:text/html;charset=utf-8");
+            ...
             String body = "hello,nio";
             printWriter.println("Content-Length:" + body.getBytes().length);
 +            printWriter.println("Connection: close");
             printWriter.println();
             printWriter.write(body);
-            printWriter.close()
             ...
 ```
 
@@ -331,4 +255,69 @@ Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.1+13-LTS, mixed mode)
 ```
 ```bash
 $ java MyHttpClient.java http://localhost:8081
+```
+
+### 附：测试环境(云服务器)
+```bash
+$ uname -a
+Linux VM-16-2-ubuntu 5.4.0-52-generic #57-Ubuntu SMP Thu Oct 15 10:57:00 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+```
+```bash
+$ lscpu
+Architecture:                    x86_64
+CPU op-mode(s):                  32-bit, 64-bit
+Byte Order:                      Little Endian
+Address sizes:                   48 bits physical, 48 bits virtual
+CPU(s):                          8
+On-line CPU(s) list:             0-7
+Thread(s) per core:              1
+Core(s) per socket:              8
+Socket(s):                       1
+NUMA node(s):                    1
+Vendor ID:                       AuthenticAMD
+CPU family:                      23
+Model:                           49
+Model name:                      AMD EPYC 7K62 48-Core Processor
+Stepping:                        0
+CPU MHz:                         2595.124
+BogoMIPS:                        5190.24
+Hypervisor vendor:               KVM
+Virtualization type:             full
+L1d cache:                       256 KiB
+L1i cache:                       256 KiB
+L2 cache:                        32 MiB
+L3 cache:                        32 MiB
+NUMA node0 CPU(s):               0-7
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Spec store bypass: Vulnerable
+Vulnerability Spectre v1:        Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:        Mitigation; Full AMD retpoline, IBPB conditional, STIBP disabled, RSB filling
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+Flags:                           fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm rep_good nopl cpuid ext
+                                 d_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy cr8_legacy abm sse4a misal
+                                 ignsse 3dnowprefetch osvw topoext ibpb vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt sha_ni xsaveopt xsavec xgetbv1 arat
+```
+```bash
+$ free -h
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       291Mi        13Gi       2.0Mi       1.3Gi        14Gi
+Swap:            0B          0B          0B
+```
+```bash
+$ ulimit -n
+1024768
+```
+```bash
+$ cat /proc/sys/fs/file-nr
+1280    0       9223372036854775807
+```
+```bash
+$ java -version
+java version "1.8.0_271"
+Java(TM) SE Runtime Environment (build 1.8.0_271-b09)
+Java HotSpot(TM) 64-Bit Server VM (build 25.271-b09, mixed mode)
 ```

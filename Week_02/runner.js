@@ -1,28 +1,10 @@
 const fs = require('fs')
-const child_process = require('child_process')
 
-function run(cmd, args) {
-  console.debug(cmd, args.join(' '))
-  return child_process.spawnSync(cmd, args)
-}
-
-const gcArgs = {
-  serial: ['-XX:+UseSerialGC'],
-  parallel: ['-XX:+UseParallelGC'],
-  cms: ['-XX:+UseConcMarkSweepGC'],
-  g1: ['-XX:+UseG1GC']
-}
-
-const memArgs = {
-  '128m': ['-Xmx128m'],
-  '512m': ['-Xms512m', '-Xmx512m'],
-  '1g': ['-Xms1024m', '-Xmx1024m'],
-  '2g': ['-Xms2048m', '-Xmx2048m'],
-  '4g': ['-Xms4096m', '-Xmx4096m']
-}
+const { run, gcArgs, memArgs, extractData } = require('./utils')
 
 function main(className) {
   const baseArgs = ['-XX:+PrintGC', '-XX:+PrintGCDateStamps', className]
+
   for (const [gcName, gcArg] of Object.entries(gcArgs)) {
     for (const [memName, memArg] of Object.entries(memArgs)) {
       const args = [...gcArg, ...memArg, ...baseArgs]
@@ -33,6 +15,8 @@ function main(className) {
       fs.writeFileSync(`${baseName}-stderr.txt`, stderr)
     } 
   }
+  const pattern = /共生成对象次数:(\d+)/
+  extractData(className, pattern)
 }
 
 if (require.main === module) {
