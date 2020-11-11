@@ -32,3 +32,5 @@ l: Phaser
 m: Exchanger
 
 ![concurrency](concurrency.png)
+
+(image courtesy: https://time.geekbang.org/column/article/83267)
