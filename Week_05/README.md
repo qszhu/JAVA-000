@@ -31,6 +31,7 @@ Bean装配是通过`BeanFactory`接口的实现来完成的。`XmlBeanFactory`�
 // TODO
 
 Week05 作业题目（周六）：
+
 1.（选做）总结一下，单例的各种写法，比较它们的优劣。
 
 * eager
