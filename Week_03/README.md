@@ -86,10 +86,11 @@ Week03 作业题目（周六）：
 
 挑战:
 
-1. 10-讲网关的frontend/backend/filter/router/线程池都改造成Spring配置方式；
-2. 20-基于AOP改造Netty网关，filter和router使用AOP方式实现；
-3. 30-基于前述改造，将网关请求前后端分离，中级使用JMS传递消息；
-4. 30-尝试使用ByteBuddy实现一个简单的基于类的AOP；
-5. 30-尝试使用ByteBuddy与Instrument实现一个简单JavaAgent实现无侵入下的AOP；
+实现一个http 文件服务器和一个ftp文件服务器。
+1. 10-实现文件列表展示：http直接网页展示列表即可。ftp支持cd、ls命令。
+2. 20-实现文件上传下载：http上传不需要支持multi-part，直接post文件内容即可。ftp只需要支持主动模式或被动模式的一种。
+3. 30-支持断点续传：http下载需要实现range，上传需要自己设计服务器端的分片方式并记录。ftp需要实现retr，stor，rest命令。
+4. 30-实现多线程文件上传下载：基于断点续传，需考虑客户端分片方式，多线程调度。
+5. 30-实现爬虫爬取前面实现的服务器上所有文件：需要考虑html解析，记录多个文件的传输进度，位置等。
 
 // TODO
