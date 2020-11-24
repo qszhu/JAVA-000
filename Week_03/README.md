@@ -4,7 +4,7 @@ Week03 作业题目（周四）：
 02nio/nio02 文件夹下
 实现以后，代码提交到 Github。
 
-1. （必做）整合你上次作业的 httpclient/okhttp；
+1. **（必做）** 整合你上次作业的 httpclient/okhttp；
 
 ```mermaid
 classDiagram
@@ -60,31 +60,31 @@ classDiagram
 * `EnvServerOptionProvider`从环境变量中获取Netty配置参数，调参无需重新编译
   * 容器部署环境中使用环境变量比JVM属性更通用
 
-2. （选做）使用 netty 实现后端 http 访问（代替上一步骤）
+2.**（选做）** 使用 netty 实现后端 http 访问（代替上一步骤）
 
 // TODO
 
 Week03 作业题目（周六）：
 
-1. （必做）实现过滤器。
+1.**（必做）** 实现过滤器。
 
 * 过滤器实现`GatewayRequestFilter`接口
   * `AddMyHeaderRequestFilter`为请求添加一个自定义HTTP头
 
-2. （选做）实现路由。
+2.**（选做）** 实现路由。
 
 * 路由实现`UpstreamChooser`接口
   * 实现了`RandomChooser`、`RoundRobinChooser`和`WeightedChooser`，带测试
 
-3. (可选)跑一跑课上的各个例子，加深对多线程的理解 
+3.**(可选)** 跑一跑课上的各个例子，加深对多线程的理解 
 
 // TODO
 
-4. (可选)完善网关的例子，试着调整其中的线程池参数
+4.**(可选)** 完善网关的例子，试着调整其中的线程池参数
 
 // TODO
 
-挑战:
+**挑战**:
 
 实现一个http 文件服务器和一个ftp文件服务器。
 1. 10-实现文件列表展示：http直接网页展示列表即可。ftp支持cd、ls命令。
