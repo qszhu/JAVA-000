@@ -14,6 +14,7 @@ Week07 作业题目（周四）：
 * `insertOrders2`: 使用`PreparedStatement#executeBatch()`批量插入 
 * `insertOrders3`: 在上述基础上关闭auto commit
 * `insertOrders4`: 使用`Statement#execute()`执行拼接的批量插入
+* `insertOrders5`: 使用HikariCP连接池，在线程池中执行批量插入
 
 测试结果：
 
@@ -23,6 +24,7 @@ Week07 作业题目（周四）：
 `insertOrders2` | 10505ms | N/A
 `insertOrders3` | 10235ms | N/A
 `insertOrders4` | 3906ms | 114780ms
+`insertOrders5` | 2021ms | 57132ms
 
 // TODO
 * 使用自增ID顺序插入

@@ -1,9 +1,16 @@
 package io.github.qszhu.database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class InsertOrders {
     private static final String connectionUrl = "jdbc:mysql://localhost:3306/shop";
@@ -127,8 +134,6 @@ public class InsertOrders {
         conn.setAutoCommit(false);
 
         Statement st = conn.createStatement();
-        PreparedStatement pst1 = conn.prepareStatement(
-                "INSERT INTO order_item (id, itemId, quantity, orderId) values (?, ?, ?, ?)");
 
         int batchSize = 1000;
 
@@ -173,6 +178,101 @@ public class InsertOrders {
         conn.commit();
     }
 
+    private static void insertOrders5(List<Order> orders) throws SQLException, ExecutionException, InterruptedException {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(connectionUrl);
+        config.setUsername(mysqlUser);
+        config.setPassword(mysqlPass);
+        config.setMaximumPoolSize(20);
+        final HikariDataSource ds = new HikariDataSource(config);
+
+        ExecutorService executor = Executors.newFixedThreadPool(20);
+
+        int batchSize = 1000;
+        List<Future<?>> res = new ArrayList<>();
+
+        int i = 0;
+        List<String> values = new ArrayList<>();
+        for (Order order : orders) {
+            values.add(String.format("(\"%s\", \"%s\")", order.getId(), order.getUser().getId()));
+
+            i++;
+            if (i % batchSize == 0) {
+                final List<String> valuesCopy = new ArrayList<>(values);
+                values.clear();
+                Future<?> f = executor.submit(() -> {
+                    try (Connection conn = ds.getConnection();
+                         Statement st = conn.createStatement()) {
+                        st.execute(String.format("INSERT INTO `order` (id, userId) values %s",
+                                String.join(",", valuesCopy)));
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                });
+                res.add(f);
+            }
+        }
+        if (!values.isEmpty()) {
+            final List<String> valuesCopy = new ArrayList<>(values);
+            values.clear();
+            Future<?> f = executor.submit(() -> {
+                try (Connection conn = ds.getConnection();
+                     Statement st = conn.createStatement()) {
+                    st.execute(String.format("INSERT INTO `order` (id, userId) values %s",
+                            String.join(",", valuesCopy)));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+            res.add(f);
+        }
+        for (Future<?> f: res) f.get();
+
+        i = 0;
+        values.clear();
+        res.clear();
+        for (Order order : orders) {
+            for (Map.Entry<Item, Integer> entry : order.getItems().entrySet()) {
+                Item item = entry.getKey();
+                Integer quantity = entry.getValue();
+                values.add(String.format("(\"%s\", \"%s\", %d, \"%s\")", Util.newId(), item.getId(), quantity, order.getId()));
+
+                i++;
+                if (i % batchSize == 0) {
+                    final List<String> valuesCopy = new ArrayList<>(values);
+                    values.clear();
+                    Future<?> f = executor.submit(() -> {
+                        try (Connection conn = ds.getConnection();
+                             Statement st = conn.createStatement()) {
+                            st.execute(String.format("INSERT INTO order_item (id, itemId, quantity, orderId) values %s",
+                                    String.join(",", valuesCopy)));
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    res.add(f);
+                }
+            }
+        }
+        if (!values.isEmpty()) {
+            final List<String> valuesCopy = new ArrayList<>(values);
+            values.clear();
+            Future<?> f = executor.submit(() -> {
+                try (Connection conn = ds.getConnection();
+                     Statement st = conn.createStatement()) {
+                    st.execute(String.format("INSERT INTO order_item (id, itemId, quantity, orderId) values %s",
+                            String.join(",", valuesCopy)));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+            res.add(f);
+        }
+
+        for (Future<?> f: res) f.get();
+        executor.shutdown();
+    }
+
     public static void main(String[] args) throws Exception {
         List<User> users = User.randomList(100);
         List<Item> items = Item.randomList(1000);
@@ -188,13 +288,15 @@ public class InsertOrders {
 
             insertUsers(conn, users);
             insertItems(conn, items);
+            conn.commit();
 
             System.out.println("started");
             long t1 = System.currentTimeMillis();
 //            insertOrders1(conn, orders);
 //            insertOrders2(conn, orders);
 //            insertOrders3(conn, orders);
-            insertOrders4(conn, orders);
+//            insertOrders4(conn, orders);
+            insertOrders5(orders);
             long t2 = System.currentTimeMillis();
 
             ResultSet rs = conn.createStatement().executeQuery("select count(id) as total from order_item");
