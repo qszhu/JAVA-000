@@ -33,8 +33,13 @@ public class Order {
     }
 
     public static List<Order> randomList(int num, List<User> users, List<Item> items, int maxItems) {
-        List<Order> res = new ArrayList<>(num);
-        for (int i = 0; i < num; i++) res.add(random(users, items, maxItems));
+        List<Order> res = new ArrayList<>();
+        int total = 0;
+        while (total < num) {
+            Order order = random(users, items, maxItems);
+            total += order.items.keySet().size();
+            res.add(order);
+        }
         return res;
     }
 }

@@ -1,12 +1,12 @@
 package io.github.qszhu.database;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class InsertOrders {
     private static final String connectionUrl = "jdbc:mysql://localhost:3306/shop";
-    private static final String connectionUrl1 = "jdbc:mysql://localhost:3306/shop?rewriteBatchedStatements=true";
     private static final String mysqlUser = "root";
     private static final String mysqlPass = "toor";
 
@@ -14,10 +14,10 @@ public class InsertOrders {
         conn.setAutoCommit(false);
         Statement st = conn.createStatement();
 
-        st.execute(("DELETE FROM order_item"));
-        st.execute(("DELETE FROM `order`"));
-        st.execute(("DELETE FROM user"));
-        st.execute(("DELETE FROM item"));
+        st.execute("DELETE FROM order_item");
+        st.execute("DELETE FROM `order`");
+        st.execute("DELETE FROM user");
+        st.execute("DELETE FROM item");
         conn.commit();
     }
 
@@ -94,57 +94,19 @@ public class InsertOrders {
     }
 
     private static void insertOrders3(Connection conn, List<Order> orders) throws SQLException {
-//        conn.setAutoCommit(false);
-
-        PreparedStatement pst = conn.prepareStatement(
-                "INSERT INTO `order` (id, userId) values (?, ?)");
-        PreparedStatement pst1 = conn.prepareStatement(
-                "INSERT INTO order_item (id, itemId, quantity, orderId) values (?, ?, ?, ?)");
-        for (Order order : orders) {
-            pst.setString(1, order.getId());
-            pst.setString(2, order.getUser().getId());
-            pst.addBatch();
-        }
-        pst.executeBatch();
-
-        for (Order order : orders) {
-            for (Map.Entry<Item, Integer> entry : order.getItems().entrySet()) {
-                Item item = entry.getKey();
-                Integer quantity = entry.getValue();
-                pst1.setString(1, Util.newId());
-                pst1.setString(2, item.getId());
-                pst1.setInt(3, quantity);
-                pst1.setString(4, order.getId());
-                pst1.addBatch();
-            }
-        }
-        pst1.executeBatch();
-
-//        conn.commit();
-    }
-
-    private static void insertOrders4(Connection conn, List<Order> orders) throws SQLException {
         conn.setAutoCommit(false);
 
         PreparedStatement pst = conn.prepareStatement(
                 "INSERT INTO `order` (id, userId) values (?, ?)");
         PreparedStatement pst1 = conn.prepareStatement(
                 "INSERT INTO order_item (id, itemId, quantity, orderId) values (?, ?, ?, ?)");
-
-        int batchSize = 5000;
-        int i = 0;
         for (Order order : orders) {
             pst.setString(1, order.getId());
             pst.setString(2, order.getUser().getId());
             pst.addBatch();
-            i++;
-            if (i % batchSize == 0) {
-                pst.executeBatch();
-            }
         }
         pst.executeBatch();
 
-        i = 0;
         for (Order order : orders) {
             for (Map.Entry<Item, Integer> entry : order.getItems().entrySet()) {
                 Item item = entry.getKey();
@@ -154,13 +116,59 @@ public class InsertOrders {
                 pst1.setInt(3, quantity);
                 pst1.setString(4, order.getId());
                 pst1.addBatch();
-                i++;
-                if (i % batchSize == 0) {
-                    pst1.executeBatch();
-                }
             }
         }
         pst1.executeBatch();
+
+        conn.commit();
+    }
+
+    private static void insertOrders4(Connection conn, List<Order> orders) throws SQLException {
+        conn.setAutoCommit(false);
+
+        Statement st = conn.createStatement();
+        PreparedStatement pst1 = conn.prepareStatement(
+                "INSERT INTO order_item (id, itemId, quantity, orderId) values (?, ?, ?, ?)");
+
+        int batchSize = 1000;
+
+        int i = 0;
+        List<String> values = new ArrayList<>();
+        for (Order order : orders) {
+            values.add(String.format("(\"%s\", \"%s\")", order.getId(), order.getUser().getId()));
+
+            i++;
+            if (i % batchSize == 0) {
+                st.execute(String.format("INSERT INTO `order` (id, userId) values %s",
+                        String.join(",", values)));
+                values.clear();
+            }
+        }
+        if (!values.isEmpty()) {
+            st.execute(String.format("INSERT INTO `order` (id, userId) values %s",
+                    String.join(",", values)));
+        }
+
+        i = 0;
+        values.clear();
+        for (Order order : orders) {
+            for (Map.Entry<Item, Integer> entry : order.getItems().entrySet()) {
+                Item item = entry.getKey();
+                Integer quantity = entry.getValue();
+                values.add(String.format("(\"%s\", \"%s\", %d, \"%s\")", Util.newId(), item.getId(), quantity, order.getId()));
+
+                i++;
+                if (i % batchSize == 0) {
+                    st.execute(String.format("INSERT INTO order_item (id, itemId, quantity, orderId) values %s",
+                            String.join(",", values)));
+                    values.clear();
+                }
+            }
+        }
+        if (!values.isEmpty()) {
+            st.execute(String.format("INSERT INTO order_item (id, itemId, quantity, orderId) values %s",
+                    String.join(",", values)));
+        }
 
         conn.commit();
     }
@@ -169,12 +177,11 @@ public class InsertOrders {
         List<User> users = User.randomList(100);
         List<Item> items = Item.randomList(1000);
 
-        int numOrders = 10000;
+        int numOrders = 1_000_000;
         List<Order> orders = Order.randomList(numOrders, users, items, 10);
 
         try {
             Connection conn = DriverManager.getConnection(connectionUrl, mysqlUser, mysqlPass);
-            Connection conn1 = DriverManager.getConnection(connectionUrl1, mysqlUser, mysqlPass);
 
             System.out.println("preparing");
             cleanDb(conn);
@@ -187,11 +194,10 @@ public class InsertOrders {
 //            insertOrders1(conn, orders);
 //            insertOrders2(conn, orders);
 //            insertOrders3(conn, orders);
-            insertOrders3(conn1, orders);
-//            insertOrders4(conn, orders);
+            insertOrders4(conn, orders);
             long t2 = System.currentTimeMillis();
 
-            ResultSet rs = conn.createStatement().executeQuery("select count(id) as total from `order`");
+            ResultSet rs = conn.createStatement().executeQuery("select count(id) as total from order_item");
             rs.next();
             System.out.println(rs.getInt("total"));
 

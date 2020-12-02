@@ -13,15 +13,16 @@ Week07 作业题目（周四）：
 * `insertOrders1`: 使用`PreparedStatement#execute()`一条一条插入 
 * `insertOrders2`: 使用`PreparedStatement#executeBatch()`批量插入 
 * `insertOrders3`: 在上述基础上关闭auto commit
-* `insertOrders3*`: 在上述基础上设置`rewriteBatchedStatements=true`
+* `insertOrders4`: 使用`Statement#execute()`执行拼接的批量插入
 
 测试结果：
 
-测试方法/数据量 | 10K | 100K
+测试方法/数据量 | 100K | 1M
 --- | --- | --- 
-`insertOrders1` | 17178ms | N/A
-`insertOrders2` | 13104ms | N/A
-`insertOrders3` | 5493ms | N/A
+`insertOrders1` | 17104ms | N/A
+`insertOrders2` | 10505ms | N/A
+`insertOrders3` | 10235ms | N/A
+`insertOrders4` | 3906ms | 114780ms
 
 // TODO
 * 使用自增ID顺序插入
