@@ -10,21 +10,21 @@ Week07 作业题目（周四）：
 
 测试方法：
 
-* `insertOrders1`: 使用`PreparedStatement#execute()`一条一条插入 
-* `insertOrders2`: 使用`PreparedStatement#executeBatch()`批量插入 
-* `insertOrders3`: 在上述基础上关闭auto commit
-* `insertOrders4`: 使用`Statement#execute()`执行拼接的批量插入
-* `insertOrders5`: 使用HikariCP连接池，在线程池中执行批量插入
+* `InsertOrderSingleStatements`: 使用`PreparedStatement#execute()`一条一条插入 
+* `InsertOrderBatchStatements`: 使用`PreparedStatement#executeBatch()`批量插入 
+* `InsertOrderBatchNoAutoCommit`: 在上述基础上关闭auto commit
+* `InsertOrderRewriteBatchedStatements`: 使用`RewriteBatchedStatements`合并插入语句
+* `InsertOrderPooling`: 使用HikariCP连接池，在线程池中执行批量插入
 
 测试结果：
 
 测试方法/数据量 | 100K | 1M
 --- | --- | --- 
-`insertOrders1` | 17104ms | N/A
-`insertOrders2` | 10505ms | N/A
-`insertOrders3` | 10235ms | N/A
-`insertOrders4` | 3906ms | 114780ms
-`insertOrders5` | 2021ms | 57132ms
+`InsertOrderSingleStatements` | 30586ms | N/A
+`InsertOrderBatchStatements` | 24226ms | N/A
+`InsertOrderBatchNoAutoCommit` | 10094ms | N/A
+`InsertOrderRewriteBatchedStatements` | 4199ms | 103326ms
+`InsertOrderPooling` | 1763ms | 47116ms
 
 // TODO
 * 使用自增ID顺序插入

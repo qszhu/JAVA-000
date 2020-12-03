@@ -10,7 +10,7 @@ import java.util.*;
 public class Order {
     private String id;
     private User user;
-    private Map<Item, Integer> items;
+    private List<OrderItem> items;
 
     public static Order random(List<User> users, List<Item> items, int maxItems) {
         Random r = new Random();
@@ -25,10 +25,20 @@ public class Order {
             selItems.put(item, quantity + 1);
         }
 
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (Map.Entry<Item, Integer> entry : selItems.entrySet()) {
+            OrderItem orderItem = new OrderItem(
+                    Util.newId(),
+                    entry.getKey(),
+                    entry.getValue()
+            );
+            orderItems.add(orderItem);
+        }
+
         return new Order(
                 Util.newId(),
                 user,
-                selItems
+                orderItems
         );
     }
 
@@ -37,10 +47,9 @@ public class Order {
         int total = 0;
         while (total < num) {
             Order order = random(users, items, maxItems);
-            total += order.items.keySet().size();
+            total += order.items.size();
             res.add(order);
         }
         return res;
     }
 }
-
