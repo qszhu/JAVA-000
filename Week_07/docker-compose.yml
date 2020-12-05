@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  mysql_master:
+    image: mysql:5.7
+    env_file: master.env
+    volumes:
+      - ./volumes/master/db:/var/lib/mysql/
+      - ./volumes/master/cnf:/etc/mysql/conf.d/
+    ports:
+      - 4406:3306
+
+  mysql_slave:
+    image: mysql:5.7
+    env_file: slave.env
+    volumes:
+      - ./volumes/slave/db:/var/lib/mysql/
+      - ./volumes/slave/cnf:/etc/mysql/conf.d/
+    ports:
+      - 4407:3306
+    links:
+      - mysql_master

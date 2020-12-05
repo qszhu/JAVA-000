@@ -54,6 +54,57 @@ Week07 作业题目（周六）：
 
 1.**（选做）** 配置一遍异步复制，半同步复制、组复制
 
+### Docker国内镜像
+
+* 编辑`~/.docker/daemon.json`
+```json
+{
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://hub-mirror.c.163.com"
+  ]
+}
+```
+* 重启docker
+
+### 启动mysql实例
+
+```bash
+$ docker-compose up
+```
+
+### 记录master ip
+```bash
+$ docker-compose exec mysql_master cat /etc/hosts
+127.0.0.1       localhost
+::1     localhost ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+172.19.0.2      360da63ec411
+```
+
+### 记录日志文件名和同步位置
+```bash
+$ mysql -h 127.0.0.1 -P 4406 -u root -p -e "show master status"
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000003 |      154 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+```
+
+### 配置主从复制
+
+```bash
+$ mysql -h 127.0.0.1 -P 4407 -u root -p
+
+mysql> change master to MASTER_HOST='172.19.0.2',MASTER_USER='root',MASTER_PASSWORD='example',MASTER_LOG_FILE='mysql-bin.000003',MASTER_LOG_POS=154;
+mysql> start slave;
+mysql> show slave status\G
+```
+
 // TODO
 
 2.**（必做）** 读写分离 - 动态切换数据源版本 1.0
@@ -79,3 +130,6 @@ Week07 作业题目（周六）：
 7.**（选做）** 配置 Orchestrator，模拟 master 宕机，演练 UI 调整拓扑结构
 
 // TODO
+
+### 参考资料
+* https://medium.com/@sagar.dash290/docker-container-using-master-slave-approach-by-mysql-5-7-d5cbe25c115b
