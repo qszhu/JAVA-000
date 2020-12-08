@@ -109,7 +109,12 @@ mysql> show slave status\G
 
 2.**（必做）** 读写分离 - 动态切换数据源版本 1.0
 
+见`Datasource1`。使用`AbstractRoutingDataSource`，切换前需手动设置一个ThreadLocal变量
+
 // TODO
+* 使用自定义注解标注需使用哪种数据源
+* 根据要执行的SQL自动选择数据源
+* 使用AOP
 
 3.**（必做）** 读写分离 - 数据库框架版本 2.0
 
