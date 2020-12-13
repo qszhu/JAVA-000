@@ -10,6 +10,14 @@ public class ItemService {
     @Resource(name = "itemConnection")
     private Connection conn;
 
+    public void reserve(int id, int quantity) throws SQLException {
+        System.out.println("Reserve item " + id + " stock with quantity " + quantity);
+    }
+
+    public void unreserve(int id, int quantity) throws SQLException {
+        System.out.println("Unreserve item " + id + " stock with quantity " + quantity);
+    }
+
     public void reduce(int id, int quantity) throws SQLException {
         String sql = "update item set stock=stock-? where id=?";
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
@@ -18,6 +26,7 @@ public class ItemService {
             int rowAffected = pst.executeUpdate();
             if (rowAffected != 1) throw new SQLException("Something wrong");
         }
+        System.out.println("Reduce item " + id + " stock with quantity " + quantity);
     }
 
     public int getRemain(int id) throws SQLException {

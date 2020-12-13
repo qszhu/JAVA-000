@@ -11,6 +11,7 @@ public class WithdrawBalanceOperation extends BaseTCCOperation {
 
     @Override
     public void trial() throws Exception {
+        userService.freeze(userId, amount);
     }
 
     @Override
@@ -20,6 +21,6 @@ public class WithdrawBalanceOperation extends BaseTCCOperation {
 
     @Override
     protected void cancel() throws Exception {
-        userService.withdraw(userId, -amount);
+        userService.unfreeze(userId, amount);
     }
 }

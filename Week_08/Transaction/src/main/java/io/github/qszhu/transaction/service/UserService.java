@@ -10,6 +10,14 @@ public class UserService {
     @Resource(name = "userConnection")
     private Connection conn;
 
+    public void freeze(int id, int amount) throws SQLException {
+        System.out.println("Freeze user " + id + " balance with amount " + amount);
+    }
+
+    public void unfreeze(int id, int amount) throws SQLException {
+        System.out.println("Unfreeze user " + id + " balance with amount " + amount);
+    }
+
     public void withdraw(int id, int amount) throws SQLException {
         String sql = "update user set balance=balance-? where id=?";
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
@@ -18,6 +26,7 @@ public class UserService {
             int rowAffected = pst.executeUpdate();
             if (rowAffected != 1) throw new SQLException("Something wrong");
         }
+        System.out.println("Withdraw user " + id + " balance with amount " + amount);
     }
 
     public int getBalance(int id) throws SQLException {

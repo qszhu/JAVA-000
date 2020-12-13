@@ -69,7 +69,6 @@ public class Main {
         try {
             manager.commit();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
 
         balance = userService.getBalance(1);
@@ -85,13 +84,16 @@ public class Main {
         userService = (UserService) context.getBean("userService");
         itemService = (ItemService) context.getBean("itemService");
 
-        System.out.println("Success transactions");
+        System.out.println("Success transaction");
         successTransaction();
+        System.out.println();
 
         System.out.println("Failed 1st operation");
         failedTransaction1();
+        System.out.println();
 
         System.out.println("Failed 2nd operation");
         failedTransaction2();
+        System.out.println();
     }
 }

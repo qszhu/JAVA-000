@@ -11,24 +11,25 @@ public class TCCTransactionManager {
     }
 
     public void commit() throws Exception {
-        // try
+        System.out.println("try:");
         Exception ex = null;
         for (TCCOperation op : operations) {
             try {
                 op.doTry();
             } catch (Exception e) {
                 ex = e;
+                System.out.println(e.getMessage());
                 break;
             }
         }
 
         if (ex == null) {
-            // confirm
+            System.out.println("confirm:");
             for (TCCOperation op : operations) {
                 op.doConfirm();
             }
         } else {
-            // cancel
+            System.out.println("cancel:");
             for (TCCOperation op : operations) {
                 op.doCancel();
             }

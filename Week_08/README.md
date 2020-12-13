@@ -54,21 +54,38 @@ Week08 作业题目（周六）：
 * 分别模拟了事务成功，扣款失败和减库存失败的情况，输出如下：
 
 ```
-Success transactions
+Success transaction
 balance before: 100000000
 stock before: 200
+try:
+Freeze user 1 balance with amount 100
+Reserve item 1 stock with quantity 1
+confirm:
+Withdraw user 1 balance with amount 100
+Reduce item 1 stock with quantity 1
 balance after: 99999900
 stock after: 199
+
 Failed 1st operation
 balance before: 99999900
 stock before: 199
+try:
 fail
+cancel:
+Unfreeze user 1 balance with amount 100
+Unreserve item 1 stock with quantity 1
 balance after: 99999900
 stock after: 199
+
 Failed 2nd operation
 balance before: 99999900
 stock before: 199
+try:
+Freeze user 1 balance with amount 100
 fail
+cancel:
+Unfreeze user 1 balance with amount 100
+Unreserve item 1 stock with quantity 1
 balance after: 99999900
 stock after: 199
 ```

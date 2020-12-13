@@ -27,7 +27,7 @@ public abstract class BaseTCCOperation implements TCCOperation {
 
     @Override
     public void doCancel() throws Exception {
-        if (!confirmed || canceled) return;
+        if (canceled) return;
         cancel();
         canceled = true;
     }

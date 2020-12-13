@@ -11,6 +11,7 @@ public class ReduceStockOperation extends BaseTCCOperation {
 
     @Override
     public void trial() throws Exception {
+        itemService.reserve(itemId, quantity);
     }
 
     @Override
@@ -20,6 +21,6 @@ public class ReduceStockOperation extends BaseTCCOperation {
 
     @Override
     protected void cancel() throws Exception {
-        itemService.reduce(itemId, -quantity);
+        itemService.unreserve(itemId, quantity);
     }
 }
