@@ -1,0 +1,6 @@
+server:
+  port: 8801
+  
+  profiles:
+    active: true
+
