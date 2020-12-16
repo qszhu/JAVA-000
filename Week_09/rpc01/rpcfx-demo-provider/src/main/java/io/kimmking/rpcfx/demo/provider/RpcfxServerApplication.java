@@ -3,7 +3,9 @@ package io.kimmking.rpcfx.demo.provider;
 import io.kimmking.rpcfx.api.RpcfxRequest;
 import io.kimmking.rpcfx.api.RpcfxResolver;
 import io.kimmking.rpcfx.api.RpcfxResponse;
+import io.kimmking.rpcfx.demo.api.Order;
 import io.kimmking.rpcfx.demo.api.OrderService;
+import io.kimmking.rpcfx.demo.api.User;
 import io.kimmking.rpcfx.demo.api.UserService;
 import io.kimmking.rpcfx.server.RpcfxInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +25,16 @@ public class RpcfxServerApplication {
     }
 
     @Autowired
-    RpcfxInvoker invoker;
+    RpcfxResolver resolver;
 
     @PostMapping("/")
-    public RpcfxResponse invoke(@RequestBody RpcfxRequest request) {
-        return invoker.invoke(request);
-    }
-
-    @Bean
-    public RpcfxInvoker createInvoker(@Autowired RpcfxResolver resolver) {
-        return new RpcfxInvoker(resolver);
+    public RpcfxResponse<?> invoke(@RequestBody RpcfxRequest request) {
+        String resultClassName = request.getResultClass();
+        if ("io.kimmking.rpcfx.demo.api.User".equals(resultClassName))
+            return new RpcfxInvoker<User>(resolver).invoke(request);
+        if ("io.kimmking.rpcfx.demo.api.Order".equals(resultClassName))
+            return new RpcfxInvoker<Order>(resolver).invoke(request);
+        return null;
     }
 
     @Bean
