@@ -4,6 +4,7 @@ package io.kimmking.rpcfx.client;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.ParserConfig;
+import io.kimmking.rpcfx.api.RpcfxException;
 import io.kimmking.rpcfx.api.RpcfxRequest;
 import io.kimmking.rpcfx.api.RpcfxResponse;
 import okhttp3.MediaType;
@@ -52,19 +53,21 @@ public final class Rpcfx {
         // [], data class
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
+        public Object invoke(Object proxy, Method method, Object[] params) throws RpcfxException {
             RpcfxRequest request = new RpcfxRequest();
             request.setServiceClass(this.serviceClass.getName());
             request.setMethod(method.getName());
             request.setParams(params);
             request.setResultClass(this.resultClass.getName());
 
-            RpcfxResponse<U> response = post(request, url);
+            try {
+                RpcfxResponse<U> response = post(request, url);
+                if (response.isStatus()) return response.getResult();
 
-            // 这里判断response.status，处理异常
-            // 考虑封装一个全局的RpcfxException
-
-            return response.getResult();
+                throw response.getException();
+            } catch (IOException e) {
+                throw new RpcfxException(e);
+            }
         }
 
         private RpcfxResponse<U> post(RpcfxRequest req, String url) throws IOException {

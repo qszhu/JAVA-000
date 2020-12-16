@@ -1,5 +1,6 @@
 package io.kimmking.rpcfx.server;
 
+import io.kimmking.rpcfx.api.RpcfxException;
 import io.kimmking.rpcfx.api.RpcfxRequest;
 import io.kimmking.rpcfx.api.RpcfxResolver;
 import io.kimmking.rpcfx.api.RpcfxResponse;
@@ -33,10 +34,7 @@ public class RpcfxInvoker<U> {
 
             // 3.Xstream
 
-            // 2.封装一个统一的RpcfxException
-            // 客户端也需要判断异常
-            e.printStackTrace();
-            response.setException(e);
+            response.setException(new RpcfxException(e));
             response.setStatus(false);
             return response;
         }
