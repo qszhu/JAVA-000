@@ -7,15 +7,12 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import io.kimmking.rpcfx.api.RpcfxException;
 import io.kimmking.rpcfx.api.RpcfxRequest;
 import io.kimmking.rpcfx.api.RpcfxResponse;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URISyntaxException;
 
 public final class Rpcfx {
 
@@ -35,8 +32,6 @@ public final class Rpcfx {
     }
 
     public static class RpcfxInvocationHandler<T, U> implements InvocationHandler {
-
-        public static final MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
 
         private final Class<T> serviceClass;
         private final String url;
@@ -65,26 +60,20 @@ public final class Rpcfx {
                 if (response.isStatus()) return response.getResult();
 
                 throw response.getException();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RpcfxException(e);
             }
         }
 
-        private RpcfxResponse<U> post(RpcfxRequest req, String url) throws IOException {
+        private RpcfxResponse<U> post(RpcfxRequest req, String url) throws IOException, URISyntaxException {
             String reqJson = JSON.toJSONString(req);
             System.out.println("req json: " + reqJson);
 
-            // 1.可以复用client
-            // 2.尝试使用httpclient或者netty client
-            OkHttpClient client = new OkHttpClient();
-            final Request request = new Request.Builder()
-                    .url(url)
-                    .post(RequestBody.create(JSON_TYPE, reqJson))
-                    .build();
-            String respJson = client.newCall(request).execute().body().string();
+            String respJson = NettyRequester.getInstance().request(url, reqJson);
             System.out.println("resp json: " + respJson);
             return JSON.parseObject(respJson, new TypeReference<RpcfxResponse<U>>(resultClass) {
             });
         }
     }
+
 }
