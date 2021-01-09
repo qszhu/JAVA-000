@@ -26,6 +26,8 @@ Week11 作业题目：
 
 见 `redis/`
 
+* `Jedis`实例非线程安全，使用了`JedisPool`
+
 5. **（选做）** 基于 Redis 的 PubSub 实现订单异步处理
 
 // TODO
