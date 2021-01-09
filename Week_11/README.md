@@ -20,13 +20,63 @@ Week11 作业题目：
 
 4. **（必做）** 基于 Redis 封装分布式数据操作：
 
-    在 Java 中实现一个简单的分布式锁；
+* 在 Java 中实现一个简单的分布式锁；
 
-    在 Java 中实现一个分布式计数器，模拟减库存。
+见 `redis/**/DLock.java`
 
-见 `redis/`
+其中解锁通过lua脚本实现。10线程各减1万次计数。不加锁的情况下输出如下：
 
-* `Jedis`实例非线程安全，使用了`JedisPool`
+```
+total count 100000
+after 80670
+```
+
+加锁的情况下输出如下：
+
+```
+total count 100000
+after 0
+```
+
+* 在 Java 中实现一个分布式计数器，模拟减库存。
+
+见 `redis/**/DCounter.java`
+
+通过Redis事务实现。10线程减10万库存，输出如下：
+
+```
+before: 100000
+Thread 22 completed 9606 failed 1471
+Thread 24 completed 8886 failed 1487
+Thread 21 completed 10813 failed 1455
+Thread 26 completed 10926 failed 1449
+Thread 25 completed 9577 failed 1479
+Thread 29 completed 10010 failed 1467
+Thread 30 completed 10081 failed 1467
+Thread 27 completed 9626 failed 1473
+Thread 28 completed 9875 failed 1466
+Thread 23 completed 10600 failed 1459
+elasped 17833 ms
+after: 0
+```
+
+通过lua脚本实现，输出如下：
+
+```
+before: 100000
+Thread 23 completed 9992 failed 0
+Thread 27 completed 10006 failed 0
+Thread 22 completed 9991 failed 0
+Thread 25 completed 9992 failed 1
+Thread 28 completed 10013 failed 1
+Thread 21 completed 9993 failed 1
+Thread 30 completed 10018 failed 1
+Thread 29 completed 10003 failed 1
+Thread 24 completed 10002 failed 1
+Thread 26 completed 9989 failed 1
+elasped 2280 ms
+after: 0
+```
 
 5. **（选做）** 基于 Redis 的 PubSub 实现订单异步处理
 

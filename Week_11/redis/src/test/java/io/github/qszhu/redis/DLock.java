@@ -7,6 +7,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.params.SetParams;
 
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 public class DLock {
     private static final long DEFAULT_TIMEOUT_MILLIS = 30000;
@@ -53,15 +54,35 @@ public class DLock {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         JedisPoolConfig config = new JedisPoolConfig();
+        config.setMinIdle(16);
+        config.setMaxTotal(128);
         JedisPool jedisPool = new JedisPool(config, "localhost");
-        DLock lock = new DLock("lock", jedisPool);
+        DLock lock = new DLock(DLock.class.getCanonicalName(), jedisPool);
 
-        System.out.println(lock.lock());
-        System.out.println(lock.lock());
-
-        System.out.println(lock.unlock());
-        System.out.println(lock.unlock());
+        final int[] count = {100000};
+        System.out.println("total count " + count[0]);
+        int workers = 10;
+        int work = count[0] / workers;
+        boolean useLock = true; // change to false to disable locking
+        CountDownLatch latch = new CountDownLatch(workers);
+        for (int i = 0; i < workers; i++) {
+            new Thread(() -> {
+                for (int j = 0; j < work; j++) {
+                    if (useLock) {
+                        while (!lock.lock()) {
+                        }
+                        count[0]--;
+                        lock.unlock();
+                    } else {
+                        count[0]--;
+                    }
+                }
+                latch.countDown();
+            }).start();
+        }
+        latch.await();
+        System.out.println("after " + count[0]);
     }
 }
