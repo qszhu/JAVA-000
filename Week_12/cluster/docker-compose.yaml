@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  redis-1:
+    image: redis:5
+    volumes:
+      - ./redis:/etc/redis/
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      redis-net:
+        ipv4_address: 172.42.0.2
+
+  redis-2:
+    image: redis:5
+    volumes:
+      - ./redis:/etc/redis/
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      redis-net:
+        ipv4_address: 172.42.0.3
+
+  redis-3:
+    image: redis:5
+    volumes:
+      - ./redis:/etc/redis/
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      redis-net:
+        ipv4_address: 172.42.0.4
+
+  redis-cluster:
+    image: redis:5
+    command: redis-cli --cluster create 172.42.0.2:6379 172.42.0.3:6379 172.42.0.4:6379 --cluster-yes
+    depends_on: 
+      - redis-1
+      - redis-2
+      - redis-3
+    networks:
+      redis-net:
+        ipv4_address: 172.42.0.5
+
+networks:
+  redis-net:
+    ipam:
+      config:
+        - subnet: 172.42.0.0/16
