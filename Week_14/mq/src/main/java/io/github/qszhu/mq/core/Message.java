@@ -10,4 +10,8 @@ import java.util.Map;
 public class Message<T> {
     private Map<String, Object> headers;
     private T body;
+
+    public Message(T body) {
+        this(null, body);
+    }
 }

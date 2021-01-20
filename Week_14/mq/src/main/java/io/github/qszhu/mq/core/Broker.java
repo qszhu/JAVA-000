@@ -7,11 +7,11 @@ public class Broker {
     private int capacity;
     private final Map<String, MessageQueue> queueMap = new ConcurrentHashMap<>();
 
-    Broker() {
+    public Broker() {
         this(10000);
     }
 
-    Broker(int capacity) {
+    public Broker(int capacity) {
         this.capacity = capacity;
     }
 

@@ -1,7 +1,5 @@
 package io.github.qszhu.mq.core;
 
-import lombok.AllArgsConstructor;
-
 public class MessageQueueException extends Exception {
     public MessageQueueException() {
     }
